@@ -26,9 +26,6 @@ pub use ip::{IpClass, classify_ip, is_valid_ip_literal, parse_ip};
 pub use port::{PortClass, classify_port, validate_port, validate_port_or_zero};
 
 #[cfg(feature = "check")]
-pub use port::{check_bind_tcp, check_bind_udp, check_connect_tcp};
+pub use port::{check_bind_tcp, check_bind_udp, check_connect_tcp, check_connect_udp};
 
 pub use socket::validate_socket_addr;
-
-#[cfg(feature = "check")]
-pub use socket::{can_bind_tcp, can_bind_udp};
