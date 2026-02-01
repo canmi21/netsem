@@ -26,7 +26,7 @@ Check the `examples` directory for runnable code:
 
 ```toml
 [dependencies]
-netsem = { version = "0.0.2", features = ["full"] }
+netsem = { version = "0.1", features = ["full"] }
 ```
 
 ## Feature Flags
@@ -34,9 +34,8 @@ netsem = { version = "0.0.2", features = ["full"] }
 | Feature | Description |
 |---------|-------------|
 | `check` | Enables OS-level checks (`check_bind`, `check_connect`) using `socket2`. |
-| `tracing` | Enables integration with the `tracing` crate (currently reserved/unused). |
-| `serde` | Enables `serde` support (currently reserved/unused). |
-| `full` | Enables all features above. |
+| `serde` | Enables `serde::Serialize` / `serde::Deserialize` on public enums. |
+| `full` | Enables `check` + `serde`. |
 
 ## License
 
