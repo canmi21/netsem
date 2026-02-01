@@ -36,7 +36,8 @@ pub fn validate_port(p: u16) -> Result<(), NetSemError> {
 /// Validates a port number, allowing port 0 (wildcard/ephemeral).
 ///
 /// This always returns `Ok(())` as all u16 values are valid in this context.
-pub fn validate_port_or_zero(_p: u16) -> Result<(), NetSemError> {
+pub fn validate_port_or_zero(p: u16) -> Result<(), NetSemError> {
+	let _ = p;
 	Ok(())
 }
 
