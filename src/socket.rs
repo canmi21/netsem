@@ -4,7 +4,7 @@ use crate::error::NetSemError;
 use std::net::SocketAddr;
 
 #[cfg(feature = "check")]
-use crate::port::check_bind_tcp;
+use crate::port::{check_bind_tcp, check_bind_udp};
 
 /// Validates a string as a socket address (IP:Port).
 ///
@@ -19,7 +19,7 @@ use crate::port::check_bind_tcp;
 pub fn validate_socket_addr(s: &str) -> Result<SocketAddr, NetSemError> {
 	// std::net::SocketAddr parsing handles "[ipv6]:port" and "ipv4:port"
 	s.parse::<SocketAddr>()
-		.map_err(|_| NetSemError::InvalidSocketAddr(format!("Invalid socket address: {s}")))
+		.map_err(|_| NetSemError::InvalidSocketAddr(s.to_owned()))
 }
 
 /// Checks if the given socket address can be bound (TCP).
@@ -30,8 +30,20 @@ pub fn validate_socket_addr(s: &str) -> Result<SocketAddr, NetSemError> {
 ///
 /// * `addr` - The socket address to check.
 #[cfg(feature = "check")]
-pub fn can_bind(addr: &SocketAddr) -> Result<(), NetSemError> {
+pub fn can_bind_tcp(addr: &SocketAddr) -> Result<(), NetSemError> {
 	check_bind_tcp(addr.ip(), addr.port())
+}
+
+/// Checks if the given socket address can be bound (UDP).
+///
+/// This attempts an actual OS bind (delegating to `check_bind_udp`).
+///
+/// # Arguments
+///
+/// * `addr` - The socket address to check.
+#[cfg(feature = "check")]
+pub fn can_bind_udp(addr: &SocketAddr) -> Result<(), NetSemError> {
+	check_bind_udp(addr.ip(), addr.port())
 }
 
 #[cfg(test)]
@@ -54,10 +66,17 @@ mod tests {
 
 	#[test]
 	#[cfg(feature = "check")]
-	fn test_can_bind_local() {
-		// Port 0 is safe to bind (ephemeral)
+	fn test_can_bind_tcp_local() {
 		let addr = validate_socket_addr("127.0.0.1:0").unwrap();
-		let result = can_bind(&addr);
-		assert!(result.is_ok(), "Real bind check failed for 127.0.0.1:0");
+		let result = can_bind_tcp(&addr);
+		assert!(result.is_ok(), "TCP bind check failed for 127.0.0.1:0");
+	}
+
+	#[test]
+	#[cfg(feature = "check")]
+	fn test_can_bind_udp_local() {
+		let addr = validate_socket_addr("127.0.0.1:0").unwrap();
+		let result = can_bind_udp(&addr);
+		assert!(result.is_ok(), "UDP bind check failed for 127.0.0.1:0");
 	}
 }
