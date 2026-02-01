@@ -40,6 +40,17 @@ pub enum IpClass {
 ///
 /// * `Ok(IpAddr)` if the string is a valid IP address.
 /// * `Err(NetSemError::InvalidIp)` if the format is invalid.
+///
+/// # Examples
+///
+/// ```
+/// use netsem::parse_ip;
+///
+/// let ip = parse_ip("192.168.1.1").unwrap();
+/// assert!(ip.is_ipv4());
+///
+/// assert!(parse_ip("invalid").is_err());
+/// ```
 pub fn parse_ip(s: &str) -> Result<IpAddr, NetSemError> {
 	s.parse::<IpAddr>()
 		.map_err(|_| NetSemError::InvalidIp(s.to_owned()))
@@ -52,6 +63,16 @@ pub fn parse_ip(s: &str) -> Result<IpAddr, NetSemError> {
 /// # Arguments
 ///
 /// * `ip` - The IP address to classify.
+///
+/// # Examples
+///
+/// ```
+/// use netsem::{IpClass, classify_ip, parse_ip};
+///
+/// assert_eq!(classify_ip(parse_ip("127.0.0.1").unwrap()), IpClass::Loopback);
+/// assert_eq!(classify_ip(parse_ip("192.168.1.1").unwrap()), IpClass::Private);
+/// assert_eq!(classify_ip(parse_ip("8.8.8.8").unwrap()), IpClass::Global);
+/// ```
 #[must_use]
 pub fn classify_ip(ip: IpAddr) -> IpClass {
 	if ip.is_loopback() {
@@ -76,6 +97,7 @@ pub fn classify_ip(ip: IpAddr) -> IpClass {
 				return IpClass::Documentation;
 			}
 			// Shared address space / CGNAT: 100.64.0.0/10 (RFC 6598)
+			// First octet == 100, mask 0xc0 checks top 2 bits of second octet == 01
 			{
 				let octets = ipv4.octets();
 				if octets[0] == 100 && (octets[1] & 0xc0) == 64 {
@@ -83,6 +105,7 @@ pub fn classify_ip(ip: IpAddr) -> IpClass {
 				}
 			}
 			// Benchmarking: 198.18.0.0/15 (RFC 2544)
+			// First octet == 198, mask 0xfe checks top 7 bits of second octet == 0001001
 			{
 				let octets = ipv4.octets();
 				if octets[0] == 198 && (octets[1] & 0xfe) == 18 {
@@ -120,6 +143,15 @@ pub fn classify_ip(ip: IpAddr) -> IpClass {
 /// Checks if a string is a valid IP address syntax.
 ///
 /// Does NOT perform DNS lookups.
+///
+/// # Examples
+///
+/// ```
+/// use netsem::is_valid_ip_literal;
+///
+/// assert!(is_valid_ip_literal("10.0.0.1"));
+/// assert!(!is_valid_ip_literal("example.com"));
+/// ```
 #[must_use]
 pub fn is_valid_ip_literal(s: &str) -> bool {
 	s.parse::<IpAddr>().is_ok()
