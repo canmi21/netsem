@@ -1,4 +1,4 @@
-# netsem
+# Netsem
 
 Standardized, pure-functional IP address validation and port checking utilities.
 
