@@ -35,7 +35,7 @@ netsem = { version = "0.1", features = ["full"] }
 |---------|-------------|
 | `check` | Enables OS-level checks (`check_bind`, `check_connect`) using `socket2`. |
 | `serde` | Enables `serde::Serialize` / `serde::Deserialize` on public enums. |
-| `full` | Enables `check` + `serde`. |
+| `full` | Enables all features above. |
 
 ## License
 
