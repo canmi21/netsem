@@ -17,13 +17,11 @@ all-features = true
 serde = { version = "1", features = ["derive"], optional = true }
 socket2 = { version = "0.6", optional = true }
 thiserror = "2"
-tracing = { version = "0.1", optional = true }
 
 [features]
 default = []
-full = ["check", "tracing", "serde"]
+full = ["check", "serde"]
 check = ["dep:socket2"]
-tracing = ["dep:tracing"]
 serde = ["dep:serde"]
 
 # [[example]]
