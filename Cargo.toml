@@ -1,7 +1,7 @@
 [package]
 name = "netsem"
 license = "MIT"
-version = "0.1.4"
+version = "0.1.5"
 edition = "2024"
 rust-version = "1.93"
 categories = ["network-programming", "value-formatting", "os"]
