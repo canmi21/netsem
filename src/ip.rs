@@ -24,6 +24,10 @@ pub enum IpClass {
 	Broadcast,
 	/// Documentation address (TEST-NET-1/2/3, IPv6 Doc).
 	Documentation,
+	/// Shared address space / Carrier-grade NAT (100.64.0.0/10, RFC 6598).
+	SharedAddress,
+	/// Benchmarking address (198.18.0.0/15, RFC 2544).
+	Benchmarking,
 }
 
 /// Parses a string into an IP address.
@@ -70,6 +74,20 @@ pub fn classify_ip(ip: IpAddr) -> IpClass {
 			}
 			if ipv4.is_documentation() {
 				return IpClass::Documentation;
+			}
+			// Shared address space / CGNAT: 100.64.0.0/10 (RFC 6598)
+			{
+				let octets = ipv4.octets();
+				if octets[0] == 100 && (octets[1] & 0xc0) == 64 {
+					return IpClass::SharedAddress;
+				}
+			}
+			// Benchmarking: 198.18.0.0/15 (RFC 2544)
+			{
+				let octets = ipv4.octets();
+				if octets[0] == 198 && (octets[1] & 0xfe) == 18 {
+					return IpClass::Benchmarking;
+				}
 			}
 			if ipv4.is_private() {
 				return IpClass::Private;
@@ -195,6 +213,26 @@ mod tests {
 			IpClass::Private
 		);
 
+		// SharedAddress (CGNAT)
+		assert_eq!(
+			classify_ip(IpAddr::V4(Ipv4Addr::new(100, 64, 0, 1))),
+			IpClass::SharedAddress
+		);
+		assert_eq!(
+			classify_ip(IpAddr::V4(Ipv4Addr::new(100, 127, 255, 255))),
+			IpClass::SharedAddress
+		);
+
+		// Benchmarking
+		assert_eq!(
+			classify_ip(IpAddr::V4(Ipv4Addr::new(198, 18, 0, 1))),
+			IpClass::Benchmarking
+		);
+		assert_eq!(
+			classify_ip(IpAddr::V4(Ipv4Addr::new(198, 19, 255, 255))),
+			IpClass::Benchmarking
+		);
+
 		// Global
 		assert_eq!(
 			classify_ip(IpAddr::V4(Ipv4Addr::new(8, 8, 8, 8))),
@@ -206,5 +244,21 @@ mod tests {
 			))),
 			IpClass::Global
 		);
+
+		// IPv6 Unspecified
+		assert_eq!(
+			classify_ip(IpAddr::V6(Ipv6Addr::UNSPECIFIED)),
+			IpClass::Unspecified
+		);
+	}
+
+	#[test]
+	fn test_is_valid_ip_literal() {
+		assert!(is_valid_ip_literal("127.0.0.1"));
+		assert!(is_valid_ip_literal("::1"));
+		assert!(is_valid_ip_literal("192.168.0.1"));
+		assert!(!is_valid_ip_literal("invalid"));
+		assert!(!is_valid_ip_literal("256.0.0.1"));
+		assert!(!is_valid_ip_literal(""));
 	}
 }
