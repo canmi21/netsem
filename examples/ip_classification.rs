@@ -19,7 +19,7 @@ fn main() {
 		match parse_ip(s) {
 			Ok(ip) => {
 				let class = classify_ip(ip);
-				println!("IP: {:<15} | Class: {:?}", s, class);
+				println!("IP: {s:<15} | Class: {class:?}");
 
 				// Example of semantic matching
 				match class {
@@ -31,10 +31,12 @@ fn main() {
 					IpClass::Broadcast => println!("  -> This is a broadcast address."),
 					IpClass::Documentation => println!("  -> This is a documentation address."),
 					IpClass::Unspecified => println!("  -> This is an unspecified address."),
+					IpClass::SharedAddress => println!("  -> This is a shared/CGNAT address."),
+					IpClass::Benchmarking => println!("  -> This is a benchmarking address."),
 					_ => println!("  -> Unknown classification."),
 				}
 			}
-			Err(e) => eprintln!("Failed to parse {}: {}", s, e),
+			Err(e) => eprintln!("Failed to parse {s}: {e}"),
 		}
 	}
 }
