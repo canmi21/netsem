@@ -26,6 +26,15 @@ pub enum PortClass {
 ///
 /// * `Ok(())` if `p` is in range 1..=65535.
 /// * `Err(NetSemError::InvalidPort(0))` if `p` is 0.
+///
+/// # Examples
+///
+/// ```
+/// use netsem::validate_port;
+///
+/// assert!(validate_port(80).is_ok());
+/// assert!(validate_port(0).is_err());
+/// ```
 pub fn validate_port(p: u16) -> Result<(), NetSemError> {
 	if p == 0 {
 		return Err(NetSemError::InvalidPort(0));
@@ -35,13 +44,33 @@ pub fn validate_port(p: u16) -> Result<(), NetSemError> {
 
 /// Validates a port number, allowing port 0 (wildcard/ephemeral).
 ///
-/// This always returns `Ok(())` as all u16 values are valid in this context.
-pub fn validate_port_or_zero(p: u16) -> Result<(), NetSemError> {
-	let _ = p;
+/// All `u16` values (0..=65535) are valid ports when zero is allowed,
+/// so this always returns `Ok(())`.
+///
+/// # Examples
+///
+/// ```
+/// use netsem::validate_port_or_zero;
+///
+/// assert!(validate_port_or_zero(0).is_ok());
+/// assert!(validate_port_or_zero(8080).is_ok());
+/// ```
+pub fn validate_port_or_zero(_port: u16) -> Result<(), NetSemError> {
+	// All u16 values (0..=65535) are valid ports when zero is allowed.
 	Ok(())
 }
 
 /// Classifies a port number into its IANA range.
+///
+/// # Examples
+///
+/// ```
+/// use netsem::{PortClass, classify_port};
+///
+/// assert_eq!(classify_port(22), PortClass::System);
+/// assert_eq!(classify_port(8080), PortClass::User);
+/// assert_eq!(classify_port(60000), PortClass::Dynamic);
+/// ```
 #[must_use]
 pub fn classify_port(p: u16) -> PortClass {
 	if p < 1024 {
