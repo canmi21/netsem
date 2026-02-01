@@ -1,0 +1,7 @@
+*.log
+.env
+*.md
+!README.md
+/target
+reference
+.DS_Store
