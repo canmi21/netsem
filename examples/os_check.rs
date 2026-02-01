@@ -1,11 +1,8 @@
 /* examples/os_check.rs */
 
-//!
 //! Requires the `check` feature: `cargo run --example os_check --features check`
 
-#[cfg(feature = "check")]
-use netsem::port::check_connect_udp;
-use netsem::{check_bind_tcp, check_bind_udp, check_connect_tcp};
+use netsem::{check_bind_tcp, check_bind_udp, check_connect_tcp, check_connect_udp};
 #[cfg(feature = "check")]
 use std::time::Duration;
 
