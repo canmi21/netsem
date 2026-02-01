@@ -1,48 +1,41 @@
-# Sigterm
+# netsem
 
-Signal-aware async control and cancellation primitives for Tokio.
+Standardized, pure-functional IP address validation and port checking utilities.
 
-`sigterm` abstracts away the boilerplate of listening for system signals (`Ctrl+C`, `SIGTERM`, etc.) and coordinating shutdown across multiple asynchronous tasks.
+`netsem` (Network Semantics) provides synchronous tools for parsing, classifying, and validating network primitives (IPs, Ports, Sockets). It is designed to be a lightweight foundation for network applications, offering a clear separation between semantic validation (syntax, logic) and OS-level interactions (binding, connecting).
 
 ## Features
 
-- **Signal Waiting**: Wait for `Ctrl+C` or `SIGTERM` across platforms with a single `await`. Use `try_wait()` for non-panicking version.
-- **Cancellation Tokens**: Hierarchy-based cancellation (parent cancels child) powered by `tokio-util`.
-- **Shutdown Primitives**:
-  - `Shutdown`: One-shot channel for single-task termination.
-  - `Broadcast`: Notify multiple subscribers of a shutdown event.
-  - `ShutdownGuard`: RAII guard that triggers shutdown when dropped (useful for panics).
-- **Framework Integration**: `shutdown_signal()` helper designed for seamless integration with `axum::serve`.
-- **Unix Extensions**: Listen for custom signal sets (`SIGHUP`, `SIGQUIT`, etc.) on Unix systems.
+- **Pure Validation**: Parse and validate IPs and Ports without touching the OS.
+- **IP Classification**: Categorize IPs into `Loopback`, `Private`, `Global`, `Multicast`, or `Unspecified`.
+- **Port Classification**: Identify `System`, `User`, or `Dynamic` ports.
+- **OS Checks (Optional)**: Perform actual `bind` or `connect` checks using the `check` feature (powered by `socket2`).
+- **Sync-First**: Zero async dependencies. Ready to be wrapped in `spawn_blocking` if needed.
+- **Error Handling**: Uses `thiserror` for structured, inspectable errors.
 
 ## Usage Examples
 
 Check the `examples` directory for runnable code:
 
-- **Basic Usage**: [`examples/simple.rs`](examples/simple.rs) - Wait for a simple shutdown signal.
-- **Server Integration**: [`examples/shutdown_signal.rs`](examples/shutdown_signal.rs) - Combine system signals with internal cancellation (e.g., for Axum).
-- **Task Orchestration**: [`examples/broadcast.rs`](examples/broadcast.rs) - Coordinate multiple workers.
-- **Hierarchical Cancellation**: [`examples/cancellation.rs`](examples/cancellation.rs) - Manage tree-structured tasks.
-- **Scope Guard**: [`examples/guard.rs`](examples/guard.rs) - Ensure shutdown on exit or panic.
+- **Basic Usage**: [`examples/simple.rs`](examples/simple.rs) - Parse a socket address and optionally check if it can be bound.
+- **IP Classification**: [`examples/ip_classification.rs`](examples/ip_classification.rs) - Categorize different IP addresses (Loopback, Private, Global, etc.).
+- **Port Ranges**: [`examples/port_ranges.rs`](examples/port_ranges.rs) - Classify ports into System, User, and Dynamic ranges.
+- **OS Checks**: [`examples/os_check.rs`](examples/os_check.rs) - Perform actual bind and connect tests (requires `check` feature).
 
 ## Installation
 
 ```toml
 [dependencies]
-sigterm = { version = "0.3", features = ["full"] }
+netsem = { version = "0.0.2", features = ["full"] }
 ```
 
 ## Feature Flags
 
 | Feature | Description |
 |---------|-------------|
-| `signal` | Enables signal handling (Ctrl+C, SIGTERM) - enabled by default. |
-| `sync` | Enables synchronization primitives (`Shutdown`, `Broadcast`). |
-| `macros` | Enables Tokio macro support. |
-| `rt` | Enables Tokio runtime support (required for `wait_for`). |
-| `cancel` | Enables hierarchical cancellation tokens via `tokio-util`. |
-| `time` | Enables timeout support for signal waiting. |
-| `tracing` | Enables optional tracing instrumentation for debugging. |
+| `check` | Enables OS-level checks (`check_bind`, `check_connect`) using `socket2`. |
+| `tracing` | Enables integration with the `tracing` crate (currently reserved/unused). |
+| `serde` | Enables `serde` support (currently reserved/unused). |
 | `full` | Enables all features above. |
 
 ## License
