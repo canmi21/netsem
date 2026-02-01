@@ -25,6 +25,15 @@ check = ["dep:socket2"]
 serde = ["dep:serde"]
 
 [[example]]
+name = "simple"
+
+[[example]]
+name = "port_ranges"
+
+[[example]]
+name = "ip_classification"
+
+[[example]]
 name = "os_check"
 required-features = ["check"]
 
